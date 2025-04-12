@@ -1,0 +1,9 @@
+
+# MySQL Database Configuration
+mysql_host: localhost
+mysql_user: root
+mysql_password: ''
+mysql_port: 3307
+mysql_db: flashapp
+charset: 'utf8mb4'
+collation: 'utf8mb4_general_ci'

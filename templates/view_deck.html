@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ deck[1] }} - FlashApp</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="fs-4 fw-bold">Flash<span class="text-white">App</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">{{ deck[1] }}</li>
+            </ol>
+        </nav>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>{{ deck[1] }}</h1>
+                <p class="text-muted">{{ deck[2] }}</p>
+                <p class="text-muted small">
+                    Created: {{ deck[4].strftime('%Y-%m-%d') }} | 
+                    Last studied: {{ deck[5].strftime('%Y-%m-%d %H:%M') if deck[5] else 'Never' }}
+                </p>
+            </div>
+            <div class="col-md-4 d-flex justify-content-md-end align-items-center gap-2">
+                <a href="/deck/{{ deck[0] }}/study" class="btn btn-success">
+                    <i class="bi bi-play-fill"></i> Study Now
+                </a>
+                <a href="/deck/{{ deck[0] }}/edit" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit Deck
+                </a>
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteDeckModal">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">Flashcards</h3>
+                        <a href="/deck/{{ deck[0] }}/add_card" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-lg"></i> Add Card
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if cards %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 45%">Front</th>
+                                            <th style="width: 45%">Back</th>
+                                            <th style="width: 10%">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for card in cards %}
+                                            <tr>
+                                                <td>{{ card[1] | truncate(100) }}</td>
+                                                <td>{{ card[2] | truncate(100) }}</td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a href="/card/{{ card[0] }}/edit" class="btn btn-outline-primary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-outline-danger" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#deleteCardModal" 
+                                                                data-card-id="{{ card[0] }}">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center p-4">
+                                <img src="{{ url_for('static', filename='img/empty-cards.svg') }}" alt="No cards" class="img-fluid mb-3" style="max-width: 150px;">
+                                <h5>This deck doesn't have any flashcards yet.</h5>
+                                <p class="text-muted mb-3">Add your first card to start studying!</p>
+                                <a href="/deck/{{ deck[0] }}/add_card" class="btn btn-primary">Add Your First Card</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Deck Modal -->
+    <div class="modal fade" id="deleteDeckModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Deck</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the deck <strong>{{ deck[1] }}</strong>?</p>
+                    <p class="text-danger">This action cannot be undone and will delete all flashcards in this deck.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="/deck/{{ deck[0] }}/delete" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Card Modal -->
+    <div class="modal fade" id="deleteCardModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Card</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this flashcard?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteCardForm" action="" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 Imcc FlashApp. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">Terms</a>
+                    <a href="#" class="text-white me-3">Privacy</a>
+                    <a href="#" class="text-white">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Set up delete card modal functionality
+        document.getElementById('deleteCardModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const cardId = button.getAttribute('data-card-id');
+            const form = document.getElementById('deleteCardForm');
+            form.action = `/card/${cardId}/delete`;
+        });
+    </script>
+</body>
+</html>

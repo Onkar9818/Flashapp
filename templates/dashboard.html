@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FlashApp</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="fs-4 fw-bold">Flash<span class="text-white">App</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Welcome, {{ session.username }}!</h1>
+            <a href="/create_deck" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Create Deck
+            </a>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h3 class="card-title mb-0">Your Flashcard Decks</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if decks %}
+                            <div class="list-group list-group-flush">
+                                {% for deck in decks %}
+                                    <a href="/deck/{{ deck[0] }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">{{ deck[1] }}</h5>
+                                            <p class="mb-1 text-muted">{{ deck[2] | truncate(100) }}</p>
+                                            <small class="text-muted">Last studied: {{ deck[5].strftime('%Y-%m-%d %H:%M') if deck[5] else 'Never' }}</small>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">Study</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center p-4">
+                                <img src="{{ url_for('static', filename='img/empty-state.svg') }}" alt="No decks" class="img-fluid mb-3" style="max-width: 200px;">
+                                <h5>You don't have any flashcard decks yet.</h5>
+                                <p class="text-muted mb-3">Create your first deck to start studying!</p>
+                                <a href="/create_deck" class="btn btn-primary">Create Your First Deck</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h3 class="card-title mb-0">Quick Tips</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h5><i class="bi bi-lightbulb text-warning"></i> Creating Effective Flashcards</h5>
+                            <p class="small">Keep questions clear and concise. Include only one concept per card.</p>
+                        </div>
+                        <div class="mb-3">
+                            <h5><i class="bi bi-clock text-info"></i> Spaced Repetition</h5>
+                            <p class="small">Review cards at increasing intervals to improve long-term retention.</p>
+                        </div>
+                        <div>
+                            <h5><i class="bi bi-graph-up text-success"></i> Track Your Progress</h5>
+                            <p class="small mb-0">Monitor your performance to identify areas that need more focus.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h3 class="card-title mb-0">Recent Activity</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- This would be populated with real data in a full implementation -->
+                        <p class="text-muted text-center">Your recent activity will appear here as you use FlashApp.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 Imcc FlashApp. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">Terms</a>
+                    <a href="#" class="text-white me-3">Privacy</a>
+                    <a href="#" class="text-white">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
